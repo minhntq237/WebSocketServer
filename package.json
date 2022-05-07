@@ -1,5 +1,5 @@
 {
-  "name": "WebSocketServe",
+  "name": "WebSocketServer",
   "version": "1.0.0",
   "description": "",
   "main": "webSocket.js",

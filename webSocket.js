@@ -22,12 +22,14 @@ webSocketServer.on('connection', (webSocketConnection) => {
 
         if (message == "hello, this is desktop client") {
 			desktopClient.push(webSocketConnection)
+			sendMessageAndContentToAllClients(desktopClient, "nice to meet you, desktop client", "")
 		}
 
 		if (message == "Orientation Data") {
 			console.log("Alpha", content[3])
 			console.log("Beta", content[4])
 			console.log("Gamma", content[5])
+			sendMessageAndContentToAllClients(desktopClient, "Orientation Data", {alpha: content[3], beta: content[4], gamma: content[5]})
 		}
     
     });
