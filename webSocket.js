@@ -1,8 +1,16 @@
 const WebSocket = require('ws');
 const webSocketServer = new WebSocket.Server({ port:8500 });
 
-let phoneClient = []
-let desktopClient = []
+let phoneClient = new Map()
+let desktopClient = new Map()
+
+
+function generateUniqueID() {
+	const today = new Date();
+	const uniqueID = today.getHours().toString() + today.getMinutes().toString() + today.getSeconds().toString();
+	return uniqueID 
+}
+
 
 webSocketServer.on('connection', (webSocketConnection) => {
     console.log("websocket server is running")
@@ -16,13 +24,16 @@ webSocketServer.on('connection', (webSocketConnection) => {
 		console.log('received: %s', message);
 
 		if (message == "hello, this is phone client") {
-			phoneClient.push(webSocketConnection)
+			let phoneUniqueID = generateUniqueID()
+			phoneClient.set(phoneUniqueID, webSocketConnection)
             sendMessageAndContentToAllClients(phoneClient, "nice to meet you, phone client", "")
 		}
 
         if (message == "hello, this is desktop client") {
-			desktopClient.push(webSocketConnection)
+			let desktopUniqueID = generateUniqueID()
+			desktopClient.set(desktopUniqueID, webSocketConnection);
 			sendMessageAndContentToAllClients(desktopClient, "nice to meet you, desktop client", "")
+			sendMessageAndContentToAllClients(desktopClient, "unique ID, desktop client", desktopUniqueID)
 		}
 
 		if (message == "Orientation Data") {
@@ -44,7 +55,13 @@ webSocketServer.on('connection', (webSocketConnection) => {
 
 function sendMessageAndContentToAllClients(listOfClients, thisMessage, thisContent) {
 	console.log("SERVER SENDING MESSAGE TO WINDOWS")
-	listOfClients.forEach((client) => {
-		client.send(JSON.stringify({message: thisMessage, content: thisContent}));
+	listOfClients.forEach((websocketConnectionValue, key) => {
+		websocketConnectionValue.send(JSON.stringify({message: thisMessage, content: thisContent}));
 	})
 }
+
+function sendMessageAndContentToClient(client, thisMessage, thisContent) {
+	console.log("SERVER SENDING MESSAGE TO WINDOWS")
+	client.send(JSON.stringify({message: thisMessage, content: thisContent}));
+}
+
